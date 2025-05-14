@@ -334,27 +334,33 @@
         });
 
         // Update task handlers
-        $('#saveTask').click(function() {
+        $('#saveTask').click(function () {
             const taskId = $('#taskId').val();
-            const formData = $('#taskForm').serialize();
-            const url = taskId ? `/tasks/${taskId}` : '/tasks';
-            const method = taskId ? 'PUT' : 'POST';
+            const isUpdate = !!taskId;
+            let formData = $('#taskForm').serialize();
+
+            if (isUpdate) {
+                formData += '&_method=PUT'; // Add PUT override for Laravel
+            }
+
+            const url = isUpdate ? `/tasks/${taskId}` : '/tasks';
 
             $.ajax({
                 url: url,
-                method: method,
+                method: 'POST', // Always use POST, Laravel will see _method for override
                 data: formData,
-                success: function() {
+                success: function () {
                     $('#taskModal').modal('hide');
                     loadProjects();
                     $('#taskForm')[0].reset();
                     $('#taskId').val('');
-                    showAlert(taskId ? 'Task updated successfully!' : 'Task created successfully!');
+                    showAlert(isUpdate ? 'Task updated successfully!' : 'Task created successfully!');
                 },
-                error: function() {
+                error: function () {
                     showAlert('Error saving task. Please try again.', 'danger');
                 }
             });
+
             updateStatistics();
         });
 
@@ -416,52 +422,6 @@
             $('#taskDescription').val(description);
             $('#taskStatus').val(status);
             $('#taskModal').modal('show');
-        });
-
-        $('#saveTask').click(function() {
-            const taskId = $('#taskId').val();
-            const formData = $('#taskForm').serialize();
-            const url = taskId ? `/tasks/${taskId}` : '/tasks';
-            const method = taskId ? 'PUT' : 'POST';
-
-            $.ajax({
-                url: url,
-                method: method,
-                data: formData,
-                success: function() {
-                    $('#taskModal').modal('hide');
-                    loadProjects();
-                    $('#taskForm')[0].reset();
-                    $('#taskId').val('');
-                }
-            });
-        });
-
-        // Delete handlers
-        $(document).on('click', '.delete-project', function() {
-            const projectId = $(this).data('project-id');
-            if(confirm('Are you sure you want to delete this project?')) {
-                $.ajax({
-                    url: `/projects/${projectId}`,
-                    type: 'DELETE',
-                    success: function() {
-                        loadProjects();
-                    }
-                });
-            }
-        });
-
-        $(document).on('click', '.delete-task', function() {
-            const taskId = $(this).data('task-id');
-            if(confirm('Are you sure you want to delete this task?')) {
-                $.ajax({
-                    url: `/tasks/${taskId}`,
-                    type: 'DELETE',
-                    success: function() {
-                        loadProjects();
-                    }
-                });
-            }
         });
 
         // Update statistics
