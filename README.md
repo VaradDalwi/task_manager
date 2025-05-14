@@ -21,9 +21,14 @@ A simple web-based Project Task Management application built using Laravel. It a
 ### Prerequisites
 
 - PHP >= 8.1
+- Laravel
 - Composer
 - MySQL
 - Node.js & npm
+- Javascript
+- JQuery
+- Ajax
+- Bootstrap
 - Git
 
 ### Installation Steps
