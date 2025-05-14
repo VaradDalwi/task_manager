@@ -26,13 +26,13 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#13293d">
         <div class="container">
-            <a class="navbar-brand" href="#">Task Management</a>
+            <a class="navbar-brand" href=""><b>TASK MANAGER</b></a>
             <div class="d-flex align-items-center">
                 <span class="navbar-text me-3" id="location-info">Loading location...</span>
                 <div class="dropdown">
-                    <button class="btn btn-dark dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-dark dropdown-toggle d-flex align-items-center" style="background-color:#006494 !important" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="me-2">{{ Auth::user()->name }}</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -50,11 +50,11 @@
 
     <div class="container mt-4">
         <!-- Add this alert container after the navbar -->
-        <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1050;"></div>
+        <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1050;width:600px;"></div>
         <div class="row mb-4">
             <div class="col-md-12 d-flex justify-content-between align-items-center">
-                <h2><b>PROJECTS</b></h2>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                <h3><b>All Projects</b></h3>
+                <button class="btn btn-primary" style="background-color:#13293d !important" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                     Add New Project
                 </button>
             </div>
@@ -148,7 +148,7 @@
                     html += `
                         <div class="accordion-item">
                             <h2 class="accordion-header">
-                                <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" style="font-weight:500;background-color: #345e88; color: white;" type="button" 
+                                <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" style="font-weight:500;background-color: #006494; color: white;" type="button" 
                                     data-bs-toggle="collapse" data-bs-target="#project-${project.id}">
                                     ${project.name}
                                 </button>
@@ -158,7 +158,7 @@
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <p class="mb-0">${project.description || ''}</p>
                                         <div>
-                                            <button class="btn btn-sm btn-primary add-task" data-project-id="${project.id}">
+                                            <button class="btn btn-sm btn-primary add-task" style="background-color:#13293d !important" data-project-id="${project.id}">
                                                 Add Task
                                             </button>
                                             <button class="btn btn-sm btn-info edit-project" data-project-id="${project.id}" 
