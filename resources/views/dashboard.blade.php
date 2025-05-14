@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Task Management Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
         .accordion-collapse {
             transition: all 0.3s ease-out;
@@ -23,6 +24,9 @@
             height: auto;
             overflow: visible;
         }
+        .accordion-item{
+            box-shadow: 4px 4px 10px 0px #00000026 !important;
+        }
     </style>
 </head>
 <body>
@@ -30,7 +34,6 @@
         <div class="container">
             <a class="navbar-brand" href=""><b>TASK MANAGER</b></a>
             <div class="d-flex align-items-center">
-                <span class="navbar-text me-3" id="location-info">Loading location...</span>
                 <div class="dropdown">
                     <button class="btn btn-dark dropdown-toggle d-flex align-items-center" style="background-color:#006494 !important" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="me-2">{{ Auth::user()->name }}</span>
@@ -51,10 +54,40 @@
     <div class="container mt-4">
         <!-- Add this alert container after the navbar -->
         <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1050;width:600px;"></div>
+        
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card" style="background-color: #006494; color: white;">
+                    <div class="card-body">
+                        <h5 class="card-title">User Location</h5>
+                        <p class="card-text" id="location-info">Loading location...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" style="background-color: #006494; color: white;">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Projects</h5>
+                        <p class="card-text" id="total-projects">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" style="background-color: #006494; color: white;">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Tasks</h5>
+                        <p class="card-text" id="total-tasks">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row mb-4">
             <div class="col-md-12 d-flex justify-content-between align-items-center">
                 <h3><b>All Projects</b></h3>
-                <button class="btn btn-primary" style="background-color:#13293d !important" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                <button class="btn btn-primary d-flex align-items-center gap-2" style="background-color:#13293d !important" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                    <i class="bi bi-plus-lg"></i>
                     Add New Project
                 </button>
             </div>
@@ -159,13 +192,16 @@
                                         <p class="mb-0">${project.description || ''}</p>
                                         <div>
                                             <button class="btn btn-sm btn-primary add-task" style="background-color:#13293d !important" data-project-id="${project.id}">
+                                                <i class="bi bi-plus-lg"></i>
                                                 Add Task
                                             </button>
-                                            <button class="btn btn-sm btn-info edit-project" data-project-id="${project.id}" 
+                                            <button class="btn btn-sm btn-warning edit-project" data-project-id="${project.id}" 
                                                 data-project-name="${project.name}" data-project-description="${project.description || ''}">
+                                                <i class="bi bi-pencil"></i>
                                                 Edit
                                             </button>
                                             <button class="btn btn-sm btn-danger delete-project" data-project-id="${project.id}">
+                                                <i class="bi bi-trash"></i>
                                                 Delete
                                             </button>
                                         </div>
@@ -179,6 +215,7 @@
                 });
                 $('#projectsAccordion').html(html);
                 projects.forEach(project => loadTasks(project.id));
+                updateStatistics();
             });
         }
 
@@ -196,15 +233,17 @@
                                         <span class="badge bg-${getStatusColor(task.status)}">${task.status}</span>
                                     </div>
                                     <div>
-                                        <button class="btn btn-sm btn-info edit-task" 
+                                        <button class="btn btn-sm btn-warning edit-task" 
                                             data-task-id="${task.id}"
                                             data-project-id="${projectId}"
                                             data-title="${task.title}"
                                             data-description="${task.description || ''}"
                                             data-status="${task.status}">
+                                            <i class="bi bi-pencil"></i>
                                             Edit
                                         </button>
                                         <button class="btn btn-sm btn-danger delete-task" data-task-id="${task.id}">
+                                            <i class="bi bi-trash"></i>
                                             Delete
                                         </button>
                                     </div>
@@ -316,6 +355,7 @@
                     showAlert('Error saving task. Please try again.', 'danger');
                 }
             });
+            updateStatistics();
         });
 
         // Update delete task handler
@@ -423,6 +463,23 @@
                 });
             }
         });
+
+        // Update statistics
+        function updateStatistics() {
+            $.get('/projects', function(projects) {
+                $('#total-projects').text(projects.length);
+                let totalTasks = 0;
+                const promises = projects.map(project => {
+                    return $.get(`/projects/${project.id}/tasks`).then(tasks => {
+                        totalTasks += tasks.length;
+                    });
+                });
+                
+                Promise.all(promises).then(() => {
+                    $('#total-tasks').text(totalTasks);
+                });
+            });
+        }
 
         // Initial load
         loadProjects();
