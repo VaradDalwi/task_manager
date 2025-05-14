@@ -40,6 +40,8 @@
     </nav>
 
     <div class="container mt-4">
+        <!-- Add this alert container after the navbar -->
+        <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1050;"></div>
         <div class="row mb-4">
             <div class="col-md-12 d-flex justify-content-between align-items-center">
                 <h2>Projects</h2>
@@ -137,7 +139,7 @@
                     html += `
                         <div class="accordion-item">
                             <h2 class="accordion-header">
-                                <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" 
+                                <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" style="font-weight:500;background-color: #345e88; color: white;" type="button" 
                                     data-bs-toggle="collapse" data-bs-target="#project-${project.id}">
                                     ${project.name}
                                 </button>
@@ -220,6 +222,28 @@
         });
 
         // Project Event Handlers
+        function showAlert(message, type = 'success') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.insertAdjacentHTML('beforeend', alertHtml);
+
+            // Auto dismiss after 3 seconds
+            setTimeout(() => {
+                const alerts = alertContainer.getElementsByClassName('alert');
+                if (alerts.length > 0) {
+                    const alert = alerts[0];
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 3000);
+        }
+
+        // Update project handlers
         $('#saveProject').click(function() {
             const projectId = $('#projectId').val();
             const formData = $('#projectForm').serialize();
@@ -235,10 +259,73 @@
                     loadProjects();
                     $('#projectForm')[0].reset();
                     $('#projectId').val('');
+                    showAlert(projectId ? 'Project updated successfully!' : 'Project created successfully!');
+                },
+                error: function() {
+                    showAlert('Error saving project. Please try again.', 'danger');
                 }
             });
         });
 
+        // Update delete project handler
+        $(document).on('click', '.delete-project', function() {
+            const projectId = $(this).data('project-id');
+            if(confirm('Are you sure you want to delete this project?')) {
+                $.ajax({
+                    url: `/projects/${projectId}`,
+                    type: 'DELETE',
+                    success: function() {
+                        loadProjects();
+                        showAlert('Project deleted successfully!');
+                    },
+                    error: function() {
+                        showAlert('Error deleting project. Please try again.', 'danger');
+                    }
+                });
+            }
+        });
+
+        // Update task handlers
+        $('#saveTask').click(function() {
+            const taskId = $('#taskId').val();
+            const formData = $('#taskForm').serialize();
+            const url = taskId ? `/tasks/${taskId}` : '/tasks';
+            const method = taskId ? 'PUT' : 'POST';
+
+            $.ajax({
+                url: url,
+                method: method,
+                data: formData,
+                success: function() {
+                    $('#taskModal').modal('hide');
+                    loadProjects();
+                    $('#taskForm')[0].reset();
+                    $('#taskId').val('');
+                    showAlert(taskId ? 'Task updated successfully!' : 'Task created successfully!');
+                },
+                error: function() {
+                    showAlert('Error saving task. Please try again.', 'danger');
+                }
+            });
+        });
+
+        // Update delete task handler
+        $(document).on('click', '.delete-task', function() {
+            const taskId = $(this).data('task-id');
+            if(confirm('Are you sure you want to delete this task?')) {
+                $.ajax({
+                    url: `/tasks/${taskId}`,
+                    type: 'DELETE',
+                    success: function() {
+                        loadProjects();
+                        showAlert('Task deleted successfully!');
+                    },
+                    error: function() {
+                        showAlert('Error deleting task. Please try again.', 'danger');
+                    }
+                });
+            }
+        });
         $(document).on('click', '.edit-project', function() {
             const projectId = $(this).data('project-id');
             const projectName = $(this).data('project-name');
