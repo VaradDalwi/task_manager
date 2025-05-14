@@ -29,12 +29,21 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="#">Task Management</a>
-            <div class="d-flex">
+            <div class="d-flex align-items-center">
                 <span class="navbar-text me-3" id="location-info">Loading location...</span>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-light">Logout</button>
-                </form>
+                <div class="dropdown">
+                    <button class="btn btn-dark dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="me-2">{{ Auth::user()->name }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}" class="dropdown-item p-0">
+                                @csrf
+                                <button type="submit" class="btn w-100 text-start px-3 py-2">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
@@ -44,7 +53,7 @@
         <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1050;"></div>
         <div class="row mb-4">
             <div class="col-md-12 d-flex justify-content-between align-items-center">
-                <h2>Projects</h2>
+                <h2><b>PROJECTS</b></h2>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                     Add New Project
                 </button>
